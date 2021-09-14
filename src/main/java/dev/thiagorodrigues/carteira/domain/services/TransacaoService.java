@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
 
+@Service
 public class TransacaoService {
 
     private ModelMapper modelMapper = new ModelMapper();
