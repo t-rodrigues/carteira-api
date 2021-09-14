@@ -25,7 +25,7 @@ public class UsuarioController {
 
     @PostMapping
     public void addUsuario(@RequestBody @Valid UsuarioFormDto usuarioFormDto) {
-        usuarioService.save(usuarioFormDto);
+        usuarioService.createUsuario(usuarioFormDto);
     }
 
 }

@@ -1,6 +1,5 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -11,24 +10,30 @@ import org.springframework.stereotype.Service;
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioResponseDto;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
+import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class UsuarioService {
 
-    private List<Usuario> usuarios = new ArrayList<>();
+    private final UsuarioRepository usuarioRepository;
+
     private ModelMapper modelMapper = new ModelMapper();
 
     public List<UsuarioResponseDto> getUsuarios() {
+        var usuarios = usuarioRepository.findAll();
+
         return usuarios.stream().map(usuario -> modelMapper.map(usuario, UsuarioResponseDto.class))
                 .collect(Collectors.toList());
     }
 
-    public void save(UsuarioFormDto usuarioFormDto) {
+    public void createUsuario(UsuarioFormDto usuarioFormDto) {
         Usuario novoUsuario = modelMapper.map(usuarioFormDto, Usuario.class);
         String senha = new Random().nextInt(99999) + "";
         novoUsuario.setSenha(senha);
 
-        usuarios.add(novoUsuario);
+        usuarioRepository.save(novoUsuario);
     }
 
 }
