@@ -1,36 +1,31 @@
 package dev.thiagorodrigues.carteira.application.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
-import dev.thiagorodrigues.carteira.domain.entities.Transacao;
+import dev.thiagorodrigues.carteira.domain.services.TransacaoService;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/transacoes")
 public class TransacaoController {
 
-    private ModelMapper modelMapper = new ModelMapper();
-    private List<Transacao> transacoes = new ArrayList<>();
+    private final TransacaoService transacaoService;
 
     @GetMapping
     public List<TransacaoResponseDto> getTransacoes() {
-        return transacoes.stream().map(t -> modelMapper.map(t, TransacaoResponseDto.class))
-                .collect(Collectors.toList());
+        return transacaoService.getTransacoes();
     }
 
     @PostMapping
     public void addTransacao(@RequestBody @Valid TransacaoFormDto transacaoFormDto) {
-        Transacao transacao = modelMapper.map(transacaoFormDto, Transacao.class);
-
-        transacoes.add(transacao);
+        transacaoService.createTransacao(transacaoFormDto);
     }
 
 }
