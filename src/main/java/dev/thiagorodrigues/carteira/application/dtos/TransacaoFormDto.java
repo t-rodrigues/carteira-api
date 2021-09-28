@@ -8,7 +8,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
-import dev.thiagorodrigues.carteira.domain.entities.enums.TipoTransacao;
+import dev.thiagorodrigues.carteira.domain.entities.TipoTransacao;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,11 +24,12 @@ public class TransacaoFormDto {
     private BigDecimal preco;
 
     @Positive
-    private int quantidade;
+    private Integer quantidade;
 
     @PastOrPresent
     private LocalDate data;
 
+    @NotBlank
     private TipoTransacao tipo;
 
 }
