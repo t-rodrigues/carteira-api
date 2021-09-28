@@ -22,7 +22,7 @@ public class UsuarioService {
     private ModelMapper modelMapper = new ModelMapper();
 
     public List<UsuarioResponseDto> getUsuarios() {
-        var usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAll();
 
         return usuarios.stream().map(usuario -> modelMapper.map(usuario, UsuarioResponseDto.class))
                 .collect(Collectors.toList());
