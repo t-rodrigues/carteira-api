@@ -26,4 +26,7 @@ public class Transacao {
     @Enumerated(EnumType.STRING)
     private TipoTransacao tipo;
 
+    @ManyToOne
+    private Usuario usuario;
+
 }
