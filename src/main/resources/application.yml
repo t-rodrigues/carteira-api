@@ -5,8 +5,6 @@ spring:
     password: docker
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    show-sql: true
     properties:
       '[format_sql]': true
-    show-sql: true
-    hibernate:
-      ddl-auto: update
