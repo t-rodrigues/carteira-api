@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
@@ -20,6 +21,7 @@ public class TransacaoService {
 
     private ModelMapper modelMapper = new ModelMapper();
 
+    @Transactional(readOnly = true)
     public List<TransacaoResponseDto> getTransacoes() {
         List<Transacao> transacoes = transacaoRepository.findAll();
 
@@ -27,6 +29,7 @@ public class TransacaoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void createTransacao(TransacaoFormDto transacaoFormDto) {
         Transacao transacao = modelMapper.map(transacaoFormDto, Transacao.class);
         transacao.setId(null);
