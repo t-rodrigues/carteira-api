@@ -1,11 +1,11 @@
 package dev.thiagorodrigues.carteira.application.dtos;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import dev.thiagorodrigues.carteira.domain.entities.TipoTransacao;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @Setter

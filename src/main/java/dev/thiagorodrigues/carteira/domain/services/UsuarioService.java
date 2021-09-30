@@ -1,18 +1,17 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
-import java.util.Random;
-
+import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
+import dev.thiagorodrigues.carteira.application.dtos.UsuarioResponseDto;
+import dev.thiagorodrigues.carteira.domain.entities.Usuario;
+import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
-import dev.thiagorodrigues.carteira.application.dtos.UsuarioResponseDto;
-import dev.thiagorodrigues.carteira.domain.entities.Usuario;
-import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.Random;
 
 @RequiredArgsConstructor
 @Service
