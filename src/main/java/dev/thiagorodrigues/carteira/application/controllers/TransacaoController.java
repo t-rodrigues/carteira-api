@@ -1,9 +1,10 @@
 package dev.thiagorodrigues.carteira.application.controllers;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
@@ -19,8 +20,8 @@ public class TransacaoController {
     private final TransacaoService transacaoService;
 
     @GetMapping
-    public List<TransacaoResponseDto> getTransacoes() {
-        return transacaoService.getTransacoes();
+    public Page<TransacaoResponseDto> getTransacoes(@PageableDefault(size = 10) Pageable paginacao) {
+        return transacaoService.getTransacoes(paginacao);
     }
 
     @PostMapping

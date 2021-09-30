@@ -1,9 +1,9 @@
 package dev.thiagorodrigues.carteira.application.controllers;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
@@ -19,8 +19,8 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping
-    public List<UsuarioResponseDto> getUsuarios() {
-        return usuarioService.getUsuarios();
+    public Page<UsuarioResponseDto> getUsuarios(Pageable paginacao) {
+        return usuarioService.getUsuarios(paginacao);
     }
 
     @PostMapping

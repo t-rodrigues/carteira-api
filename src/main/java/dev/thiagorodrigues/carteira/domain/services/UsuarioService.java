@@ -1,10 +1,10 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +23,10 @@ public class UsuarioService {
     private ModelMapper modelMapper = new ModelMapper();
 
     @Transactional(readOnly = true)
-    public List<UsuarioResponseDto> getUsuarios() {
-        List<Usuario> usuarios = usuarioRepository.findAll();
+    public Page<UsuarioResponseDto> getUsuarios(Pageable paginacao) {
+        Page<Usuario> usuarios = usuarioRepository.findAll(paginacao);
 
-        return usuarios.stream().map(usuario -> modelMapper.map(usuario, UsuarioResponseDto.class))
-                .collect(Collectors.toList());
+        return usuarios.map(usuario -> modelMapper.map(usuario, UsuarioResponseDto.class));
     }
 
     @Transactional
