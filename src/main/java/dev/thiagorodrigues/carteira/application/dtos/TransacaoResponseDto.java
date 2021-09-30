@@ -11,10 +11,12 @@ import lombok.Setter;
 @Setter
 public class TransacaoResponseDto {
 
+    private Long id;
     private String ticker;
     private BigDecimal preco;
     private Integer quantidade;
     private LocalDate data;
     private TipoTransacao tipo;
+    private UsuarioResponseDto usuario;
 
 }

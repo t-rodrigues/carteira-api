@@ -21,7 +21,7 @@ public class TransacaoService {
     private ModelMapper modelMapper = new ModelMapper();
 
     public List<TransacaoResponseDto> getTransacoes() {
-        var transacoes = transacaoRepository.findAll();
+        List<Transacao> transacoes = transacaoRepository.findAll();
 
         return transacoes.stream().map(t -> modelMapper.map(t, TransacaoResponseDto.class))
                 .collect(Collectors.toList());
@@ -29,6 +29,7 @@ public class TransacaoService {
 
     public void createTransacao(TransacaoFormDto transacaoFormDto) {
         Transacao transacao = modelMapper.map(transacaoFormDto, Transacao.class);
+        transacao.setId(null);
 
         transacaoRepository.save(transacao);
     }

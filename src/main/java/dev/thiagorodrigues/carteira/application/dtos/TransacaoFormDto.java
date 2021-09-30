@@ -3,10 +3,9 @@ package dev.thiagorodrigues.carteira.application.dtos;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PastOrPresent;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 import dev.thiagorodrigues.carteira.domain.entities.TipoTransacao;
 import lombok.Getter;
@@ -29,7 +28,11 @@ public class TransacaoFormDto {
     @PastOrPresent
     private LocalDate data;
 
-    @NotBlank
+    @NotNull
     private TipoTransacao tipo;
+
+    @NotNull
+    @JsonAlias("usuario_id")
+    private Long usuarioId;
 
 }
