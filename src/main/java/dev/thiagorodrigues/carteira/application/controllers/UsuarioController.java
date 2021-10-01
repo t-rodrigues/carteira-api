@@ -6,9 +6,13 @@ import dev.thiagorodrigues.carteira.domain.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+
+import java.net.URI;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,8 +27,13 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public void addUsuario(@RequestBody @Valid UsuarioFormDto usuarioFormDto) {
-        usuarioService.createUsuario(usuarioFormDto);
+    public ResponseEntity<UsuarioResponseDto> addUsuario(@RequestBody @Valid UsuarioFormDto usuarioFormDto,
+            UriComponentsBuilder uriComponentsBuilder) {
+        UsuarioResponseDto usuarioResponseDto = usuarioService.createUsuario(usuarioFormDto);
+
+        URI location = uriComponentsBuilder.path("/usuarios/{id}").buildAndExpand(usuarioResponseDto.getId()).toUri();
+
+        return ResponseEntity.created(location).body(usuarioResponseDto);
     }
 
 }

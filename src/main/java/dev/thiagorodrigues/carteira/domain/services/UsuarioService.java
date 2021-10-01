@@ -29,12 +29,13 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void createUsuario(UsuarioFormDto usuarioFormDto) {
-        Usuario novoUsuario = modelMapper.map(usuarioFormDto, Usuario.class);
+    public UsuarioResponseDto createUsuario(UsuarioFormDto usuarioFormDto) {
+        Usuario usuario = modelMapper.map(usuarioFormDto, Usuario.class);
         String senha = new Random().nextInt(99999) + "";
-        novoUsuario.setSenha(senha);
+        usuario.setSenha(senha);
+        usuarioRepository.save(usuario);
 
-        usuarioRepository.save(novoUsuario);
+        return modelMapper.map(usuario, UsuarioResponseDto.class);
     }
 
 }
