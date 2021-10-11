@@ -1,6 +1,7 @@
 package dev.thiagorodrigues.carteira.domain.entities;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "transacoes")
 public class Transacao {
@@ -28,5 +30,15 @@ public class Transacao {
 
     @ManyToOne
     private Usuario usuario;
+
+    public Transacao(String ticker, BigDecimal preco, Integer quantidade, LocalDate data, TipoTransacao tipo,
+            Usuario usuario) {
+        this.ticker = ticker;
+        this.preco = preco;
+        this.quantidade = quantidade;
+        this.data = data;
+        this.tipo = tipo;
+        this.usuario = usuario;
+    }
 
 }
