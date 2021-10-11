@@ -18,7 +18,7 @@ public class TransacaoFormDto {
 
     @NotBlank
     @Size(min = 5, max = 6)
-    @Pattern(regexp = "[a-zA-Z]{4}[0-9]{1,2}")
+    @Pattern(regexp = "[a-zA-Z]{4}[0-9]{1,2}", message = "Ticker no formato inválido")
     private String ticker;
 
     @Positive
@@ -27,8 +27,8 @@ public class TransacaoFormDto {
     @Positive
     private Integer quantidade;
 
-    @JsonFormat(shape = Shape.STRING, pattern = "dd/MM/yyyy")
     @PastOrPresent
+    @JsonFormat(shape = Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate data;
 
     @NotNull
