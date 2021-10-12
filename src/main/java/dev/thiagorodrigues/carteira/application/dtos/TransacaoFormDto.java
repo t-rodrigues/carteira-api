@@ -25,7 +25,7 @@ public class TransacaoFormDto {
     @Pattern(regexp = "[a-zA-Z]{4}[0-9]{1,2}", message = "Ticker no formato inválido")
     private String ticker;
 
-    @Positive
+    @DecimalMin("0.01")
     private BigDecimal preco;
 
     @Positive

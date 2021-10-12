@@ -2,6 +2,7 @@ package dev.thiagorodrigues.carteira.domain.services;
 
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
+import dev.thiagorodrigues.carteira.application.dtos.TransacaoUpdateFormDto;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
 import dev.thiagorodrigues.carteira.infra.repositories.TransacaoRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,18 @@ public class TransacaoService {
         } catch (EntityNotFoundException e) {
             throw new IllegalArgumentException("Usuário inválido");
         }
+    }
+
+    @Transactional
+    public TransacaoResponseDto atualizar(@Valid TransacaoUpdateFormDto transacaoUpdateFormDto) {
+        var transacao = transacaoRepository.getById(transacaoUpdateFormDto.getId());
+
+        transacao.atualizarInformacoes(transacaoUpdateFormDto.getTicker(), transacaoUpdateFormDto.getPreco(),
+                transacaoUpdateFormDto.getQuantidade(), transacaoUpdateFormDto.getTipo(),
+                transacaoUpdateFormDto.getData());
+        transacaoRepository.save(transacao);
+
+        return modelMapper.map(transacao, TransacaoResponseDto.class);
     }
 
 }
