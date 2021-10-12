@@ -3,6 +3,7 @@ package dev.thiagorodrigues.carteira.domain.services;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.domain.entities.TipoTransacao;
+import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.infra.repositories.TransacaoRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class TransacaoServiceTest {
     @Test
     void deveriaCadastrarUmaTransacao() {
         TransacaoFormDto transacaoFormDto = createTransacaoFormDto();
-        TransacaoResponseDto dto = transacaoService.createTransacao(transacaoFormDto);
+        TransacaoResponseDto dto = transacaoService.add(transacaoFormDto);
 
         assertEquals(transacaoFormDto.getTicker(), dto.getTicker());
         assertEquals(transacaoFormDto.getPreco(), dto.getPreco());
@@ -55,8 +56,8 @@ class TransacaoServiceTest {
         Mockito.when(usuarioRepository.getById(transacaoFormDto.getUsuarioId()))
                 .thenThrow(EntityNotFoundException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            transacaoService.createTransacao(transacaoFormDto);
+        assertThrows(DomainException.class, () -> {
+            transacaoService.add(transacaoFormDto);
         });
     }
 

@@ -1,13 +1,16 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
+import dev.thiagorodrigues.carteira.application.dtos.TransacaoDetalhadaResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoUpdateFormDto;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
+import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.infra.repositories.TransacaoRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,8 +35,16 @@ public class TransacaoService {
         return transacoes.map(t -> modelMapper.map(t, TransacaoResponseDto.class));
     }
 
+    @Transactional(readOnly = true)
+    public TransacaoDetalhadaResponseDto mostrar(Long id) {
+        var transacao = transacaoRepository.findById(id)
+                .orElseThrow(() -> new DomainException("Transacao não encontrada: " + id));
+
+        return modelMapper.map(transacao, TransacaoDetalhadaResponseDto.class);
+    }
+
     @Transactional
-    public TransacaoResponseDto createTransacao(TransacaoFormDto transacaoFormDto) {
+    public TransacaoResponseDto add(TransacaoFormDto transacaoFormDto) {
         try {
             Transacao transacao = modelMapper.map(transacaoFormDto, Transacao.class);
             transacao.setId(null);
@@ -42,20 +53,33 @@ public class TransacaoService {
 
             return modelMapper.map(transacao, TransacaoResponseDto.class);
         } catch (EntityNotFoundException e) {
-            throw new IllegalArgumentException("Usuário inválido");
+            throw new DomainException("Usuário inválido: " + transacaoFormDto.getUsuarioId());
         }
     }
 
     @Transactional
     public TransacaoResponseDto atualizar(@Valid TransacaoUpdateFormDto transacaoUpdateFormDto) {
-        var transacao = transacaoRepository.getById(transacaoUpdateFormDto.getId());
+        try {
+            var transacao = transacaoRepository.getById(transacaoUpdateFormDto.getId());
 
-        transacao.atualizarInformacoes(transacaoUpdateFormDto.getTicker(), transacaoUpdateFormDto.getPreco(),
-                transacaoUpdateFormDto.getQuantidade(), transacaoUpdateFormDto.getTipo(),
-                transacaoUpdateFormDto.getData());
-        transacaoRepository.save(transacao);
+            transacao.atualizarInformacoes(transacaoUpdateFormDto.getTicker(), transacaoUpdateFormDto.getPreco(),
+                    transacaoUpdateFormDto.getQuantidade(), transacaoUpdateFormDto.getTipo(),
+                    transacaoUpdateFormDto.getData());
+            transacaoRepository.save(transacao);
 
-        return modelMapper.map(transacao, TransacaoResponseDto.class);
+            return modelMapper.map(transacao, TransacaoResponseDto.class);
+        } catch (EntityNotFoundException e) {
+            throw new DomainException("Transacao não encontrada: " + transacaoUpdateFormDto.getId());
+        }
+    }
+
+    @Transactional
+    public void remover(Long id) {
+        try {
+            transacaoRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new DomainException("Transacao não encontrada: " + id);
+        }
     }
 
 }

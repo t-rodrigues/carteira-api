@@ -1,6 +1,7 @@
 package dev.thiagorodrigues.carteira.infra.handlers;
 
 import dev.thiagorodrigues.carteira.application.exceptions.ErrorResponse;
+import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +18,11 @@ public class ResourceExceptionHandler {
             HttpServletRequest request) {
 
         return buildValidationErrorResponse(ex, HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ErrorResponse> handleDomainException(DomainException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
