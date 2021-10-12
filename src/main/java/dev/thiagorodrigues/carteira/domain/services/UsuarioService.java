@@ -77,7 +77,6 @@ public class UsuarioService {
         }
     }
 
-    @Transactional
     public void deletar(Long id) {
         try {
             usuarioRepository.deleteById(id);
