@@ -1,6 +1,7 @@
 package dev.thiagorodrigues.carteira.infra.handlers;
 
 import dev.thiagorodrigues.carteira.application.exceptions.ErrorResponse;
+import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,12 @@ public class ResourceExceptionHandler {
             HttpServletRequest request) {
 
         return buildValidationErrorResponse(ex, HttpStatus.BAD_REQUEST, request.getRequestURI());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(DomainException.class)

@@ -4,12 +4,14 @@ import dev.thiagorodrigues.carteira.application.dtos.TransacaoDetalhadaResponseD
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoUpdateFormDto;
+import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.infra.repositories.TransacaoRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +40,7 @@ public class TransacaoService {
     @Transactional(readOnly = true)
     public TransacaoDetalhadaResponseDto mostrar(Long id) {
         var transacao = transacaoRepository.findById(id)
-                .orElseThrow(() -> new DomainException("Transacao não encontrada: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Transacao não encontrada: " + id));
 
         return modelMapper.map(transacao, TransacaoDetalhadaResponseDto.class);
     }
@@ -46,14 +48,14 @@ public class TransacaoService {
     @Transactional
     public TransacaoResponseDto add(TransacaoFormDto transacaoFormDto) {
         try {
-            Transacao transacao = modelMapper.map(transacaoFormDto, Transacao.class);
+            var transacao = modelMapper.map(transacaoFormDto, Transacao.class);
             transacao.setId(null);
             transacao.setUsuario(usuarioRepository.getById(transacaoFormDto.getUsuarioId()));
             transacaoRepository.save(transacao);
 
             return modelMapper.map(transacao, TransacaoResponseDto.class);
-        } catch (EntityNotFoundException e) {
-            throw new DomainException("Usuário inválido: " + transacaoFormDto.getUsuarioId());
+        } catch (DataIntegrityViolationException e) {
+            throw new DomainException("Usuario inválido");
         }
     }
 
@@ -69,7 +71,7 @@ public class TransacaoService {
 
             return modelMapper.map(transacao, TransacaoResponseDto.class);
         } catch (EntityNotFoundException e) {
-            throw new DomainException("Transacao não encontrada: " + transacaoUpdateFormDto.getId());
+            throw new ResourceNotFoundException("Transacao inexistente: " + transacaoUpdateFormDto.getId());
         }
     }
 
@@ -78,7 +80,7 @@ public class TransacaoService {
         try {
             transacaoRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DomainException("Transacao não encontrada: " + id);
+            throw new ResourceNotFoundException("Transacao inexistente: " + id);
         }
     }
 
