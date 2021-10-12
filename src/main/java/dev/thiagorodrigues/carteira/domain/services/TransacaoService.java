@@ -56,6 +56,8 @@ public class TransacaoService {
             return modelMapper.map(transacao, TransacaoResponseDto.class);
         } catch (DataIntegrityViolationException e) {
             throw new DomainException("Usuario inválido");
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Usuario inválido");
         }
     }
 
