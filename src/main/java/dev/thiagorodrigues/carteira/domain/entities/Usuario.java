@@ -27,4 +27,9 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public void atualizarInformacoes(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+    }
+
 }
