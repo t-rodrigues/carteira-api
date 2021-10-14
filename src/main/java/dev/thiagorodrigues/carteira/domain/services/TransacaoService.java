@@ -19,19 +19,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
 public class TransacaoService {
 
+    private ModelMapper modelMapper = new ModelMapper();
+
     private final TransacaoRepository transacaoRepository;
     private final UsuarioRepository usuarioRepository;
 
-    private ModelMapper modelMapper = new ModelMapper();
-
     @Transactional(readOnly = true)
-    public Page<TransacaoResponseDto> getTransacoes(Pageable paginacao) {
+    public Page<TransacaoResponseDto> listar(Pageable paginacao) {
         Page<Transacao> transacoes = transacaoRepository.findAll(paginacao);
 
         return transacoes.map(t -> modelMapper.map(t, TransacaoResponseDto.class));
@@ -62,7 +61,7 @@ public class TransacaoService {
     }
 
     @Transactional
-    public TransacaoResponseDto atualizar(@Valid TransacaoUpdateFormDto transacaoUpdateFormDto) {
+    public TransacaoResponseDto atualizar(TransacaoUpdateFormDto transacaoUpdateFormDto) {
         try {
             var transacao = transacaoRepository.getById(transacaoUpdateFormDto.getId());
 

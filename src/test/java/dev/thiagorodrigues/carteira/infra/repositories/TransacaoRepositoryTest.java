@@ -5,6 +5,8 @@ import dev.thiagorodrigues.carteira.application.dtos.ItemCarteiraProjection;
 import dev.thiagorodrigues.carteira.domain.entities.TipoTransacao;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
+import dev.thiagorodrigues.carteira.domain.mocks.TransacaoFactory;
+import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -36,22 +37,22 @@ class TransacaoRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario("Rafaela", "rafaela@mail.com", "123123");
+        usuario = UsuarioFactory.criarUsuarioSemId();
         testEntityManager.persist(usuario);
 
-        Transacao t1 = new Transacao("ITSA4", BigDecimal.valueOf(10.00), 50, LocalDate.now(), TipoTransacao.COMPRA,
+        Transacao t1 = TransacaoFactory.criarTransacao("ITSA4", BigDecimal.valueOf(10.00), 50, TipoTransacao.COMPRA,
                 usuario);
         testEntityManager.persist(t1);
-        Transacao t2 = new Transacao("BBSE3", BigDecimal.valueOf(22.80), 80, LocalDate.now(), TipoTransacao.COMPRA,
+        Transacao t2 = TransacaoFactory.criarTransacao("BBSE3", BigDecimal.valueOf(22.80), 80, TipoTransacao.COMPRA,
                 usuario);
         testEntityManager.persist(t2);
-        Transacao t3 = new Transacao("EGIE3", BigDecimal.valueOf(40.00), 25, LocalDate.now(), TipoTransacao.COMPRA,
+        Transacao t3 = TransacaoFactory.criarTransacao("EGIE3", BigDecimal.valueOf(40.00), 25, TipoTransacao.COMPRA,
                 usuario);
         testEntityManager.persist(t3);
-        Transacao t4 = new Transacao("ITSA4", BigDecimal.valueOf(11.20), 40, LocalDate.now(), TipoTransacao.COMPRA,
+        Transacao t4 = TransacaoFactory.criarTransacao("ITSA4", BigDecimal.valueOf(11.20), 40, TipoTransacao.COMPRA,
                 usuario);
         testEntityManager.persist(t4);
-        Transacao t5 = new Transacao("SAPR4", BigDecimal.valueOf(4.02), 120, LocalDate.now(), TipoTransacao.COMPRA,
+        Transacao t5 = TransacaoFactory.criarTransacao("SAPR4", BigDecimal.valueOf(4.02), 120, TipoTransacao.COMPRA,
                 usuario);
         testEntityManager.persist(t5);
     }
@@ -71,7 +72,7 @@ class TransacaoRepositoryTest {
 
     @Test
     void deveriaRetornarRelatorioCarteiraDeInvestimentosConsiderandoVendas() {
-        var venda = new Transacao("ITSA4", BigDecimal.valueOf(11.20), 80, LocalDate.now(), TipoTransacao.VENDA,
+        var venda = TransacaoFactory.criarTransacao("ITSA4", BigDecimal.valueOf(11.20), 80, TipoTransacao.VENDA,
                 usuario);
         testEntityManager.persist(venda);
 

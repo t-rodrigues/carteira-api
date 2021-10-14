@@ -1,5 +1,7 @@
 package dev.thiagorodrigues.carteira.application.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ class UsuarioControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     void naoDeveriaCadastrarUsuarioComDadosIncompletos() throws Exception {
         String json = "{}";
@@ -37,7 +42,7 @@ class UsuarioControllerTest {
 
     @Test
     void deveriaCadastrarUmUsuarioComDadosCompletos() throws Exception {
-        String json = "{\"nome\": \"fulano\", \"email\": \"fulano@mail.com\"}";
+        String json = objectMapper.writeValueAsString(UsuarioFactory.criarUsuarioFormDto());
 
         mvc.perform(post("/usuarios").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated()).andExpect(header().exists("Location")).andExpect(content().json(json))

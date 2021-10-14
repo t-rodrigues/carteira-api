@@ -31,7 +31,7 @@ public class TransacaoController {
     @GetMapping
     @ApiOperation("Listar transações")
     public Page<TransacaoResponseDto> listar(@PageableDefault(size = 10) Pageable paginacao) {
-        return transacaoService.getTransacoes(paginacao);
+        return transacaoService.listar(paginacao);
     }
 
     @GetMapping("/{id}")

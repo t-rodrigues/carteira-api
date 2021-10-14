@@ -42,7 +42,7 @@ public class UsuarioService {
             var usuario = usuarioRepository.getById(id);
 
             return modelMapper.map(usuario, UsuarioResponseDto.class);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Usuário inexistente");
         }
     }
