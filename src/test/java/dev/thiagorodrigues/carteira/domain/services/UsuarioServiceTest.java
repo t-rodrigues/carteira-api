@@ -17,6 +17,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.persistence.EntityNotFoundException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -87,7 +89,7 @@ class UsuarioServiceTest {
     @Test
     void atualizarDeveLancarDomainExceptionQuandoUsuarioQuiserUtilizarEmailRegistrado() {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
-        when(usuarioRepository.findByEmail(anyString())).thenReturn(usuario);
+        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuario));
 
         assertThrows(DomainException.class, () -> usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto));
         verify(usuarioRepository, times(0)).save(any());

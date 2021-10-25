@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +22,17 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Objects;
 import java.util.Random;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
 
-    private ModelMapper modelMapper = new ModelMapper();
-
     private final UsuarioRepository usuarioRepository;
+    private final ModelMapper modelMapper;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDto> listar(Pageable paginacao) {
-        Page<Usuario> usuarios = usuarioRepository.findAll(paginacao);
+        var usuarios = usuarioRepository.findAll(paginacao);
 
         return usuarios.map(usuario -> modelMapper.map(usuario, UsuarioResponseDto.class));
     }
@@ -51,8 +52,8 @@ public class UsuarioService {
     public UsuarioResponseDto criar(UsuarioFormDto usuarioFormDto) {
         verificarEmailEmUso(usuarioFormDto.getEmail());
 
-        Usuario usuario = modelMapper.map(usuarioFormDto, Usuario.class);
-        String senha = gerarSenha();
+        var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
+        var senha = gerarSenhaCodificada();
         usuario.setSenha(senha);
         usuarioRepository.save(usuario);
 
@@ -95,8 +96,8 @@ public class UsuarioService {
         }
     }
 
-    private String gerarSenha() {
-        return new Random().nextInt(99999) + "";
+    private String gerarSenhaCodificada() {
+        return bCryptPasswordEncoder.encode(new Random().nextInt(99999) + "");
     }
 
 }

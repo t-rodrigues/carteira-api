@@ -39,7 +39,7 @@ class UsuarioRepositoryTest {
 
     @Test
     void findByEmailDeveriaRetornarUmUsuarioValido() {
-        var usuarioEncontrado = usuarioRepository.findByEmail(usuario.getEmail());
+        var usuarioEncontrado = usuarioRepository.findByEmail(usuario.getEmail()).get();
 
         assertEquals(usuario.getId(), usuarioEncontrado.getId());
         assertEquals(usuario.getEmail(), usuarioEncontrado.getEmail());

@@ -17,30 +17,30 @@ import javax.validation.Valid;
 
 import java.net.URI;
 
-@RequiredArgsConstructor
+@Api(tags = "Usuários")
 @RestController
 @RequestMapping("/usuarios")
-@Api(tags = "Usuários")
+@RequiredArgsConstructor
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @GetMapping
     @ApiOperation("Listar usuários")
+    @GetMapping
     public Page<UsuarioResponseDto> listar(Pageable paginacao) {
         return usuarioService.listar(paginacao);
     }
 
-    @GetMapping("/{id}")
     @ApiOperation("Detalhar usuário")
+    @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDto> mostrar(@PathVariable Long id) {
         var usuario = usuarioService.detalhar(id);
 
         return ResponseEntity.ok(usuario);
     }
 
-    @PostMapping
     @ApiOperation("Cadastrar novo usuário")
+    @PostMapping
     public ResponseEntity<UsuarioResponseDto> criar(@RequestBody @Valid UsuarioFormDto usuarioFormDto,
             UriComponentsBuilder uriComponentsBuilder) {
         UsuarioResponseDto usuarioResponseDto = usuarioService.criar(usuarioFormDto);
@@ -50,16 +50,16 @@ public class UsuarioController {
         return ResponseEntity.created(location).body(usuarioResponseDto);
     }
 
-    @PutMapping
     @ApiOperation("Atualizar os dados do usuário")
+    @PutMapping
     public ResponseEntity<UsuarioResponseDto> atualizar(@RequestBody @Valid UsuarioUpdateFormDto usuarioUpdateFormDto) {
         UsuarioResponseDto usuarioResponseDto = usuarioService.atualizar(usuarioUpdateFormDto);
 
         return ResponseEntity.ok(usuarioResponseDto);
     }
 
-    @DeleteMapping("/{id}")
     @ApiOperation("Deletar um usuário")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         usuarioService.deletar(id);
 

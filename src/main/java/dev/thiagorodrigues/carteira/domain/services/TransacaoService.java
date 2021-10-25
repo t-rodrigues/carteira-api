@@ -24,9 +24,8 @@ import javax.persistence.EntityNotFoundException;
 @RequiredArgsConstructor
 public class TransacaoService {
 
-    private ModelMapper modelMapper = new ModelMapper();
-
     private final TransacaoRepository transacaoRepository;
+    private final ModelMapper modelMapper;
     private final UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)

@@ -20,28 +20,28 @@ import javax.validation.Valid;
 
 import java.net.URI;
 
-@RequiredArgsConstructor
+@Api(tags = "Transações")
 @RestController
 @RequestMapping("/transacoes")
-@Api(tags = "Transações")
+@RequiredArgsConstructor
 public class TransacaoController {
 
     private final TransacaoService transacaoService;
 
-    @GetMapping
     @ApiOperation("Listar transações")
+    @GetMapping
     public Page<TransacaoResponseDto> listar(@PageableDefault(size = 10) Pageable paginacao) {
         return transacaoService.listar(paginacao);
     }
 
-    @GetMapping("/{id}")
     @ApiOperation("Mostrar transação completa")
+    @GetMapping("/{id}")
     public TransacaoDetalhadaResponseDto mostrar(@PathVariable Long id) {
         return transacaoService.mostrar(id);
     }
 
-    @PostMapping
     @ApiOperation("Cadastrar nova transação")
+    @PostMapping
     public ResponseEntity<TransacaoResponseDto> add(@RequestBody @Valid TransacaoFormDto transacaoFormDto,
             UriComponentsBuilder uriComponentsBuilder) {
         TransacaoResponseDto transacaoResponseDto = transacaoService.add(transacaoFormDto);
@@ -52,8 +52,8 @@ public class TransacaoController {
         return ResponseEntity.created(location).body(transacaoResponseDto);
     }
 
-    @PutMapping
     @ApiOperation("Atualizar")
+    @PutMapping
     public ResponseEntity<TransacaoResponseDto> atualizar(
             @RequestBody @Valid TransacaoUpdateFormDto transacaoUpdateFormDto) {
         var transacao = transacaoService.atualizar(transacaoUpdateFormDto);
@@ -61,8 +61,8 @@ public class TransacaoController {
         return ResponseEntity.ok(transacao);
     }
 
-    @DeleteMapping("/{id}")
     @ApiOperation("Deletar")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         transacaoService.remover(id);
 

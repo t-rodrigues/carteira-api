@@ -12,22 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+@Api(tags = "Relatórios")
 @RestController
 @RequestMapping("/relatorios")
-@Api(tags = "Relatórios")
+@RequiredArgsConstructor
 public class RelatorioController {
 
     private final RelatorioService relatorioService;
 
-    @GetMapping("/carteira")
     @ApiOperation("Relatório de transações com interface")
+    @GetMapping("/carteira")
     public List<ItemCarteiraProjection> relatorioCarteiraDeInvestimentos() {
         return relatorioService.relatorioCarteiraDeInvestimentos();
     }
 
-    @GetMapping("/carteira/dto")
     @ApiOperation("Relatório de transações com classe")
+    @GetMapping("/carteira/dto")
     public List<ItemCarteiraDto> relatorioCarteiraDeInvestimentosDto() {
         return relatorioService.relatorioCarteiraDeInvestimentosDto();
     }
