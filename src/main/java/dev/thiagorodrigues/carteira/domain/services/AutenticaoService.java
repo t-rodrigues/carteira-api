@@ -1,22 +1,26 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
-import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
+import dev.thiagorodrigues.carteira.application.dtos.AuthFormDto;
+import dev.thiagorodrigues.carteira.main.config.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AutenticaoService implements UserDetailsService {
+public class AutenticaoService {
 
-    private final UsuarioRepository usuarioRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+    public String autenticar(AuthFormDto authFormDto) {
+        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(authFormDto.getEmail(),
+                authFormDto.getPassword());
+        Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+
+        return jwtTokenUtil.generateJwtToken(authentication);
     }
 
 }

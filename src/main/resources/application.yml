@@ -9,3 +9,6 @@ spring:
     properties:
       hibernate:
         '[format_sql]': true
+
+jwt:
+  secret: 2U3+Y3eM`yhMny@&G+ffn&\{((@}L<&vXS\Wy4pNPE8+fF%AhBrwAK\$AnT-pxGnMF$.ZyX:bABqp<wA(."U={4Cetut+K?)dp]sUGe$]4Cy48RMDF7?t!J`R^[U6Dk)<;muRA`QSshv;B-J3@?JjG+gh69[M+K~aztLegf\2CzRW"u'='qt79SDetue<b}*Ez*&$V:)(b#@?`Jg97_"?R/LQd^+d%TzqW./Lt&bDrSYM.t;fx_.-Q&#+mwh76X4
