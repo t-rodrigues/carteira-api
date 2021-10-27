@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class TokenDto {
 
-    private String token;
+    private String accessToken;
 
-    public TokenDto(String token) {
-        this.token = token;
+    public TokenDto(String accessToken) {
+        this.accessToken = accessToken;
     }
 
 }
