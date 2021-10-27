@@ -16,7 +16,23 @@ public class JwtTokenUtil {
     public String generateJwtToken(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
 
-        return Jwts.builder().setId(usuario.getId().toString()).signWith(SignatureAlgorithm.HS256, secret).compact();
+        return Jwts.builder().setSubject(usuario.getId().toString()).signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
+    }
+
+    public boolean isValid(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Long getUserId(String token) {
+        String subject = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+
+        return Long.valueOf(subject);
     }
 
 }
