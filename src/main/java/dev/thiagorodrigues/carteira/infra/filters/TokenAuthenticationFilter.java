@@ -39,9 +39,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
         if (tokenValid) {
             var userId = this.jwtTokenUtil.getUserId(token);
-            var usuario = this.usuarioRepository.findById(userId).orElseThrow();
+            var usuario = this.usuarioRepository.findByIdWithProfile(userId).orElseThrow();
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null, null);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null,
+                    usuario.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

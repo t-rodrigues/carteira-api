@@ -6,6 +6,7 @@ import dev.thiagorodrigues.carteira.application.dtos.UsuarioUpdateFormDto;
 import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
+import dev.thiagorodrigues.carteira.infra.repositories.PerfilRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,10 +20,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityNotFoundException;
 
-import java.util.Objects;
 import java.util.Random;
 
 @Service
@@ -30,6 +31,7 @@ import java.util.Random;
 public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -56,6 +58,8 @@ public class UsuarioService implements UserDetailsService {
         verificarEmailEmUso(usuarioFormDto.getEmail());
 
         var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
+        usuario.setId(null);
+        usuario.getPerfis().add(perfilRepository.getById(usuarioFormDto.getPerfilId()));
         var senha = gerarSenhaCodificada();
         usuario.setSenha(senha);
         usuarioRepository.save(usuario);
@@ -100,7 +104,7 @@ public class UsuarioService implements UserDetailsService {
     private void verificarEmailEmUso(String email) {
         var usuario = usuarioRepository.findByEmail(email);
 
-        if (Objects.nonNull(usuario)) {
+        if (!ObjectUtils.isEmpty(usuario)) {
             throw new DomainException("E-mail já em uso por outro usuário");
         }
     }
