@@ -1,7 +1,7 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
 import dev.thiagorodrigues.carteira.application.dtos.AuthFormDto;
-import dev.thiagorodrigues.carteira.main.config.JwtTokenUtil;
+import dev.thiagorodrigues.carteira.main.security.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

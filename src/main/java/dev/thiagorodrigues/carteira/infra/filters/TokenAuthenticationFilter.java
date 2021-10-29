@@ -1,7 +1,7 @@
 package dev.thiagorodrigues.carteira.infra.filters;
 
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
-import dev.thiagorodrigues.carteira.main.config.JwtTokenUtil;
+import dev.thiagorodrigues.carteira.main.security.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

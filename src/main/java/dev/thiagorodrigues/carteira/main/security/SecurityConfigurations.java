@@ -3,7 +3,6 @@ package dev.thiagorodrigues.carteira.main.security;
 import dev.thiagorodrigues.carteira.domain.services.UsuarioService;
 import dev.thiagorodrigues.carteira.infra.filters.TokenAuthenticationFilter;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
-import dev.thiagorodrigues.carteira.main.config.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

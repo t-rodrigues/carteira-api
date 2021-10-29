@@ -1,4 +1,4 @@
-package dev.thiagorodrigues.carteira.main.config;
+package dev.thiagorodrigues.carteira.main.security;
 
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import io.jsonwebtoken.Jwts;

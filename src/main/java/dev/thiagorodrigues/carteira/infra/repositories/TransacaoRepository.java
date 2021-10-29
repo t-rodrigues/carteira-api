@@ -3,6 +3,9 @@ package dev.thiagorodrigues.carteira.infra.repositories;
 import dev.thiagorodrigues.carteira.application.dtos.ItemCarteiraDto;
 import dev.thiagorodrigues.carteira.application.dtos.ItemCarteiraProjection;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
+import dev.thiagorodrigues.carteira.domain.entities.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -23,5 +26,7 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
             + "(select sum(case when t2.tipo = 'COMPRA' then t2.quantidade else -t2.quantidade end) from Transacao t2)) "
             + "FROM Transacao t group by t.ticker")
     List<ItemCarteiraDto> relatorioCarteiraDeInvestimentosDto();
+
+    Page<Transacao> findAllByUsuario(Pageable paginacao, Usuario usuario);
 
 }

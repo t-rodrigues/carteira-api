@@ -49,7 +49,7 @@ public class UsuarioService implements UserDetailsService {
 
             return modelMapper.map(usuario, UsuarioResponseDto.class);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Usuário inexistente");
+            throw getResourceNotFoundException();
         }
     }
 
@@ -58,7 +58,6 @@ public class UsuarioService implements UserDetailsService {
         verificarEmailEmUso(usuarioFormDto.getEmail());
 
         var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
-        usuario.setId(null);
         usuario.getPerfis().add(perfilRepository.getById(usuarioFormDto.getPerfilId()));
         var senha = gerarSenhaCodificada();
         usuario.setSenha(senha);
@@ -81,7 +80,7 @@ public class UsuarioService implements UserDetailsService {
 
             return modelMapper.map(usuario, UsuarioResponseDto.class);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Usuário inexistente");
+            throw getResourceNotFoundException();
         }
     }
 
@@ -89,7 +88,7 @@ public class UsuarioService implements UserDetailsService {
         try {
             usuarioRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException("Usuário inexistente");
+            throw getResourceNotFoundException();
         } catch (DataIntegrityViolationException e) {
             throw new DomainException("Usuário não pode ser deletado");
         }
@@ -111,6 +110,10 @@ public class UsuarioService implements UserDetailsService {
 
     private String gerarSenhaCodificada() {
         return bCryptPasswordEncoder.encode(new Random().nextInt(99999) + "");
+    }
+
+    private ResourceNotFoundException getResourceNotFoundException() {
+        return new ResourceNotFoundException("Usuário inexistente");
     }
 
 }

@@ -50,7 +50,7 @@ class TransacaoServiceTest {
         when(usuarioRepository.getById(transacaoFormDto.getUsuarioId())).thenThrow(EntityNotFoundException.class);
 
         assertThrows(ResourceNotFoundException.class, () -> {
-            transacaoService.add(transacaoFormDto);
+            transacaoService.add(transacaoFormDto, null);
         });
     }
 
@@ -59,13 +59,13 @@ class TransacaoServiceTest {
         when(transacaoRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
 
         assertThrows(DomainException.class, () -> {
-            transacaoService.add(transacaoFormDto);
+            transacaoService.add(transacaoFormDto, null);
         });
     }
 
     @Test
     void criarDeveRetornarUmaTransacaoQuandoDadosValidos() {
-        var dto = transacaoService.add(transacaoFormDto);
+        var dto = transacaoService.add(transacaoFormDto, null);
 
         assertEquals(transacaoFormDto.getTicker(), dto.getTicker());
         assertEquals(transacaoFormDto.getPreco(), dto.getPreco());
@@ -77,13 +77,13 @@ class TransacaoServiceTest {
 
     @Test
     void mostrarDeveLancarResouceNotFoundQuandoIdTransacaoInvalido() {
-        assertThrows(ResourceNotFoundException.class, () -> transacaoService.mostrar(1l));
+        assertThrows(ResourceNotFoundException.class, () -> transacaoService.mostrar(1l, null));
     }
 
     @Test
     void mostrarDeveRetornarTransacaoQuandoIdValido() {
         when(transacaoRepository.findById(anyLong())).thenReturn(Optional.of(transacao));
-        var transacaoResponseDto = transacaoService.mostrar(1l);
+        var transacaoResponseDto = transacaoService.mostrar(1l, null);
 
         assertEquals(transacao.getId(), transacaoResponseDto.getId());
         assertEquals(transacao.getTicker(), transacaoResponseDto.getTicker());
@@ -96,13 +96,13 @@ class TransacaoServiceTest {
     void atualizarDeveLancarResourceNotFoundQuandoTransacaoIdInvalido() {
         when(transacaoRepository.getById(anyLong())).thenThrow(EntityNotFoundException.class);
 
-        assertThrows(ResourceNotFoundException.class, () -> transacaoService.atualizar(transacaoUpdateFormDto));
+        assertThrows(ResourceNotFoundException.class, () -> transacaoService.atualizar(transacaoUpdateFormDto, null));
     }
 
     @Test
     void atualizarDeveRetornarTransacaoAtualizada() {
         when(transacaoRepository.getById(transacaoUpdateFormDto.getId())).thenReturn(transacao);
-        var transacaoResponseDto = transacaoService.atualizar(transacaoUpdateFormDto);
+        var transacaoResponseDto = transacaoService.atualizar(transacaoUpdateFormDto, null);
 
         assertEquals(transacaoUpdateFormDto.getTicker(), transacaoResponseDto.getTicker());
         assertEquals(transacaoUpdateFormDto.getTipo(), transacaoResponseDto.getTipo());
@@ -113,14 +113,14 @@ class TransacaoServiceTest {
     void removerDeveriaLancarResourceNotFoundQuandoIdInvalido() {
         doThrow(EmptyResultDataAccessException.class).when(transacaoRepository).deleteById(anyLong());
 
-        assertThrows(ResourceNotFoundException.class, () -> transacaoService.remover(100L));
+        assertThrows(ResourceNotFoundException.class, () -> transacaoService.remover(100L, null));
     }
 
     @Test
     void removerNaoDeveTerRetornoComIdValido() {
         var validId = 1l;
 
-        transacaoService.remover(validId);
+        transacaoService.remover(validId, null);
 
         verify(transacaoRepository, times(1)).deleteById(1l);
     }
