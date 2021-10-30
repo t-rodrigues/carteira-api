@@ -1,25 +1,30 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
+import dev.thiagorodrigues.carteira.application.dtos.TransacaoDetalhadaResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
+import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoUpdateFormDto;
 import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.entities.Transacao;
+import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.domain.mocks.TransacaoFactory;
+import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
 import dev.thiagorodrigues.carteira.infra.repositories.TransacaoRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.modelmapper.ModelMapper;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.EntityNotFoundException;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +34,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
 class TransacaoServiceTest {
 
     @Mock
@@ -38,34 +43,60 @@ class TransacaoServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
     private TransacaoService transacaoService;
 
-    private Transacao transacao = TransacaoFactory.criarTransacao();
-    private TransacaoFormDto transacaoFormDto = TransacaoFactory.criarTransacaoFormDto();
-    private TransacaoUpdateFormDto transacaoUpdateFormDto = TransacaoFactory.criarTransacaoUpdateFormDtoComIdInvalido();
+    private Transacao transacao;
+    private TransacaoFormDto transacaoFormDto;
+    private TransacaoUpdateFormDto transacaoUpdateFormDto;
+    private TransacaoResponseDto transacaoResponseDto;
+    private TransacaoResponseDto transacaoAtualizadaResponseDto;
+    private TransacaoDetalhadaResponseDto transacaoDetalhadaResponseDto;
 
-    @Test
-    void cadastrarDeveLancarResourceNotFoundExceptionQuandoUsuarioIdInvalido() {
-        when(usuarioRepository.getById(transacaoFormDto.getUsuarioId())).thenThrow(EntityNotFoundException.class);
+    private Usuario usuario;
+    private Usuario usuarioLogado;
 
-        assertThrows(ResourceNotFoundException.class, () -> {
-            transacaoService.add(transacaoFormDto, null);
-        });
+    @BeforeEach
+    void setUp() {
+        this.usuario = UsuarioFactory.criarUsuario();
+        this.usuarioLogado = UsuarioFactory.criarUsuario();
+
+        this.transacao = TransacaoFactory.criarTransacao();
+        this.transacaoFormDto = TransacaoFactory.criarTransacaoFormDto();
+        this.transacaoUpdateFormDto = TransacaoFactory.criarTransacaoUpdateFormDto();
+        this.transacaoResponseDto = TransacaoFactory.criarTransacaoResponseDto();
+        this.transacaoAtualizadaResponseDto = TransacaoFactory.criarTransacaoAtualizadaResponseDto();
+        this.transacaoDetalhadaResponseDto = TransacaoFactory.criarTransacaoDetalhadaResponseDto();
     }
 
     @Test
-    void cadastrarDeveLancarDomainExceptionQuandoUsuarioIdInvalido() {
-        when(transacaoRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
+    void cadastrarDeveriaLancarResourceNotFoundExceptionQuandoUsuarioIdInvalido() {
+        doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
 
         assertThrows(DomainException.class, () -> {
-            transacaoService.add(transacaoFormDto, null);
+            transacaoService.add(transacaoFormDto, usuarioLogado);
         });
     }
 
     @Test
-    void criarDeveRetornarUmaTransacaoQuandoDadosValidos() {
-        var dto = transacaoService.add(transacaoFormDto, null);
+    void cadastrarDeveriaLancarDomainExceptionQuandoUsuarioIdInvalido() {
+        doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
+
+        assertThrows(DomainException.class, () -> {
+            transacaoService.add(transacaoFormDto, usuarioLogado);
+        });
+    }
+
+    @Test
+    void criarDeveriaRetornarUmaTransacaoQuandoDadosValidos() {
+        when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
+        when(modelMapper.map(transacaoFormDto, Transacao.class)).thenReturn(transacao);
+        when(modelMapper.map(transacao, TransacaoResponseDto.class)).thenReturn(transacaoResponseDto);
+
+        var dto = transacaoService.add(transacaoFormDto, usuarioLogado);
 
         assertEquals(transacaoFormDto.getTicker(), dto.getTicker());
         assertEquals(transacaoFormDto.getPreco(), dto.getPreco());
@@ -83,7 +114,9 @@ class TransacaoServiceTest {
     @Test
     void mostrarDeveRetornarTransacaoQuandoIdValido() {
         when(transacaoRepository.findById(anyLong())).thenReturn(Optional.of(transacao));
-        var transacaoResponseDto = transacaoService.mostrar(1l, null);
+        when(modelMapper.map(transacao, TransacaoDetalhadaResponseDto.class)).thenReturn(transacaoDetalhadaResponseDto);
+
+        var transacaoResponseDto = transacaoService.mostrar(transacao.getId(), usuarioLogado);
 
         assertEquals(transacao.getId(), transacaoResponseDto.getId());
         assertEquals(transacao.getTicker(), transacaoResponseDto.getTicker());
@@ -96,13 +129,16 @@ class TransacaoServiceTest {
     void atualizarDeveLancarResourceNotFoundQuandoTransacaoIdInvalido() {
         when(transacaoRepository.getById(anyLong())).thenThrow(EntityNotFoundException.class);
 
-        assertThrows(ResourceNotFoundException.class, () -> transacaoService.atualizar(transacaoUpdateFormDto, null));
+        assertThrows(ResourceNotFoundException.class,
+                () -> transacaoService.atualizar(transacaoUpdateFormDto, usuarioLogado));
     }
 
     @Test
     void atualizarDeveRetornarTransacaoAtualizada() {
         when(transacaoRepository.getById(transacaoUpdateFormDto.getId())).thenReturn(transacao);
-        var transacaoResponseDto = transacaoService.atualizar(transacaoUpdateFormDto, null);
+        when(modelMapper.map(transacao, TransacaoResponseDto.class)).thenReturn(transacaoAtualizadaResponseDto);
+
+        var transacaoResponseDto = transacaoService.atualizar(transacaoUpdateFormDto, usuarioLogado);
 
         assertEquals(transacaoUpdateFormDto.getTicker(), transacaoResponseDto.getTicker());
         assertEquals(transacaoUpdateFormDto.getTipo(), transacaoResponseDto.getTipo());
@@ -111,18 +147,20 @@ class TransacaoServiceTest {
 
     @Test
     void removerDeveriaLancarResourceNotFoundQuandoIdInvalido() {
-        doThrow(EmptyResultDataAccessException.class).when(transacaoRepository).deleteById(anyLong());
+        long invalidId = 100L;
+        doThrow(EntityNotFoundException.class).when(transacaoRepository).getById(invalidId);
 
-        assertThrows(ResourceNotFoundException.class, () -> transacaoService.remover(100L, null));
+        assertThrows(ResourceNotFoundException.class, () -> transacaoService.remover(invalidId, usuarioLogado));
     }
 
     @Test
     void removerNaoDeveTerRetornoComIdValido() {
         var validId = 1l;
 
-        transacaoService.remover(validId, null);
+        when(transacaoRepository.getById(validId)).thenReturn(transacao);
 
-        verify(transacaoRepository, times(1)).deleteById(1l);
+        assertDoesNotThrow(() -> transacaoService.remover(validId, usuarioLogado));
+        verify(transacaoRepository, times(1)).deleteById(validId);
     }
 
 }

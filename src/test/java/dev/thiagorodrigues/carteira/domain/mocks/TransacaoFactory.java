@@ -1,5 +1,6 @@
 package dev.thiagorodrigues.carteira.domain.mocks;
 
+import dev.thiagorodrigues.carteira.application.dtos.TransacaoDetalhadaResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.TransacaoUpdateFormDto;
@@ -35,6 +36,14 @@ public class TransacaoFactory {
 
     public static TransacaoResponseDto criarTransacaoResponseDto() {
         return modelMapper.map(criarTransacao(), TransacaoResponseDto.class);
+    }
+
+    public static TransacaoResponseDto criarTransacaoAtualizadaResponseDto() {
+        return modelMapper.map(criarTransacaoUpdateFormDto(), TransacaoResponseDto.class);
+    }
+
+    public static TransacaoDetalhadaResponseDto criarTransacaoDetalhadaResponseDto() {
+        return modelMapper.map(criarTransacao(), TransacaoDetalhadaResponseDto.class);
     }
 
     public static TransacaoUpdateFormDto criarTransacaoUpdateFormDto() {

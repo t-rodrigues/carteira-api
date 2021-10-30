@@ -13,7 +13,6 @@ import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -52,18 +51,18 @@ public class TransacaoService {
     @Transactional
     public TransacaoResponseDto add(TransacaoFormDto transacaoFormDto, Usuario usuarioLogado) {
         try {
-            var transacao = modelMapper.map(transacaoFormDto, Transacao.class);
             var usuario = usuarioRepository.getById(transacaoFormDto.getUsuarioId());
 
             if (!usuario.equals(usuarioLogado)) {
                 throw getAccessDeniedException();
             }
 
+            var transacao = modelMapper.map(transacaoFormDto, Transacao.class);
             transacao.setUsuario(usuario);
             transacaoRepository.save(transacao);
 
             return modelMapper.map(transacao, TransacaoResponseDto.class);
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException | EntityNotFoundException e) {
             throw new DomainException("Usuario inválido");
         }
     }
@@ -98,7 +97,7 @@ public class TransacaoService {
             }
 
             transacaoRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Transacao inexistente: " + id);
         }
     }

@@ -1,24 +1,30 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
+import dev.thiagorodrigues.carteira.application.dtos.UsuarioResponseDto;
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioUpdateFormDto;
 import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
+import dev.thiagorodrigues.carteira.infra.repositories.PerfilRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.EntityNotFoundException;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,20 +41,43 @@ class UsuarioServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private PerfilRepository perfilRepository;
+
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
     private UsuarioService usuarioService;
 
-    private Usuario usuario = UsuarioFactory.criarUsuario();
-    private UsuarioFormDto usuarioFormDto = UsuarioFactory.criarUsuarioFormDto();
-    private UsuarioUpdateFormDto usuarioUpdateFormComEmailDiferenteDto = UsuarioFactory
-            .criarUsuarioUpdateFormComEmailDiferenteDto();
-    private UsuarioUpdateFormDto usuarioUpdateFormComMesmoEmailDto = UsuarioFactory
-            .criarUsuarioUpdateFormComMesmoEmailDto();
+    private Usuario usuario;
+    private UsuarioFormDto usuarioFormDto;
+    private UsuarioUpdateFormDto usuarioUpdateFormComEmailDiferenteDto;
+    private UsuarioUpdateFormDto usuarioUpdateFormComMesmoEmailDto;
+    private UsuarioResponseDto usuarioResponseDto;
+    private UsuarioResponseDto usuarioAtualizadoResponseDto;
+    private UsuarioResponseDto usuarioAtualizadoEmailDiferenteResponseDto;
+
+    @BeforeEach
+    void setUp() {
+        usuario = UsuarioFactory.criarUsuario();
+        usuarioFormDto = UsuarioFactory.criarUsuarioFormDto();
+        usuarioUpdateFormComEmailDiferenteDto = UsuarioFactory.criarUsuarioUpdateFormComEmailDiferenteDto();
+        usuarioUpdateFormComMesmoEmailDto = UsuarioFactory.criarUsuarioUpdateFormComMesmoEmailDto();
+        usuarioResponseDto = UsuarioFactory.criarUsuarioResponseDto();
+        usuarioAtualizadoResponseDto = UsuarioFactory.criarUsuarioAtualizadoComMesmoEmailResponseDto();
+        usuarioAtualizadoEmailDiferenteResponseDto = UsuarioFactory
+                .criarUsuarioAtualizadoComEmailDiferenteResponseDto();
+    }
 
     @Test
-    void detalharDeveRetornarUsuarioDetalhado() {
+    void detalharDeveriaRetornarUsuarioDetalhado() {
         long validId = 1L;
         when(usuarioRepository.getById(anyLong())).thenReturn(UsuarioFactory.criarUsuario());
+        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioResponseDto);
         var usuarioResponseDto = usuarioService.detalhar(validId);
 
         assertEquals(validId, usuarioResponseDto.getId());
@@ -56,21 +85,25 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void detalharDeveLancarResourceNotFoundExceptionQuandoIdInvalido() {
+    void detalharDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
         doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
 
         assertThrows(ResourceNotFoundException.class, () -> usuarioService.detalhar(1L));
     }
 
     @Test
-    void criarDeveLancarDomainExceptionQuandoEmailJaEstiverRegistrado() {
+    void criarDeveriaLancarDomainExceptionQuandoEmailJaEstiverRegistrado() {
         doThrow(DomainException.class).when(usuarioRepository).findByEmail(anyString());
 
         assertThrows(DomainException.class, () -> usuarioService.criar(usuarioFormDto));
     }
 
     @Test
-    void criarDeveCriarUsuarioQuandoEmailNaoEstiverEmRegistrado() {
+    void criarDeveriaRetornarUsuarioQuandoEmailNaoEstiverRegistrado() {
+        when(usuarioRepository.findByEmail(usuarioFormDto.getEmail())).thenReturn(Optional.empty());
+        when(modelMapper.map(usuarioFormDto, Usuario.class)).thenReturn(usuario);
+        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioResponseDto);
+
         var usuarioResponseDto = usuarioService.criar(usuarioFormDto);
 
         assertEquals(usuarioFormDto.getNome(), usuarioResponseDto.getNome());
@@ -79,7 +112,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void atualizarDeveLancarResourceNotFoundExceptionQuandoIdInvalido() {
+    void atualizarDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
         doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
 
         assertThrows(ResourceNotFoundException.class,
@@ -87,7 +120,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void atualizarDeveLancarDomainExceptionQuandoUsuarioQuiserUtilizarEmailRegistrado() {
+    void atualizarDeveriaLancarDomainExceptionQuandoUsuarioQuiserUtilizarEmailRegistrado() {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
         when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuario));
 
@@ -96,8 +129,10 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void atualizarDeveRetornarUsuarioAtualizadoComEmailDiferente() {
+    void atualizarDeveriaRetornarUsuarioAtualizadoComEmailDiferente() {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
+        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioAtualizadoEmailDiferenteResponseDto);
+
         var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto);
 
         assertEquals(usuarioAtualizado.getEmail(), usuarioUpdateFormComEmailDiferenteDto.getEmail());
@@ -107,6 +142,8 @@ class UsuarioServiceTest {
     @Test
     void atualizarDeveRetornarUsuarioAtualizadoComMesmoEmail() {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
+        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioAtualizadoResponseDto);
+
         var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComMesmoEmailDto);
 
         assertEquals(usuarioAtualizado.getNome(), usuarioUpdateFormComMesmoEmailDto.getNome());
@@ -114,7 +151,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void deletarDeveLancarResourceNotFoundExceptionQuandoIdInvalido() {
+    void deletarDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
         doThrow(EmptyResultDataAccessException.class).when(usuarioRepository).deleteById(1L);
 
         assertThrows(ResourceNotFoundException.class, () -> usuarioService.deletar(1l));
@@ -122,7 +159,7 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void deletarDeveLancarDomainExceptionQuandoUsuarioNaoPodeSerExcluido() {
+    void deletarDeveriaLancarDomainExceptionQuandoUsuarioNaoPodeSerExcluido() {
         doThrow(DataIntegrityViolationException.class).when(usuarioRepository).deleteById(1L);
 
         assertThrows(DomainException.class, () -> usuarioService.deletar(1l));
@@ -130,9 +167,10 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void deletarNaoDeveRetornarNadaQuandoIdExistir() {
+    void deletarNaoDeveriaTerRetornarQuandoIdExistir() {
         long validId = 1l;
-        usuarioRepository.deleteById(validId);
+
+        assertDoesNotThrow(() -> usuarioRepository.deleteById(validId));
 
         verify(usuarioRepository, times(1)).deleteById(validId);
     }
