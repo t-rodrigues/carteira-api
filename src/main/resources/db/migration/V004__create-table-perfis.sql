@@ -12,5 +12,5 @@ CREATE TABLE perfis_usuarios (
   foreign key(perfil_id) references perfis(id)
 );
 
-INSERT INTO perfis (nome) VALUES ("ROLE_ADMIN");
-INSERT INTO perfis (nome) VALUES ("ROLE_USER");
+INSERT INTO perfis (nome) VALUES ('ROLE_ADMIN');
+INSERT INTO perfis (nome) VALUES ('ROLE_USER');
