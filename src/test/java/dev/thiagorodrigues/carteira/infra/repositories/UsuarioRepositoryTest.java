@@ -6,19 +6,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 @ActiveProfiles("test")
 class UsuarioRepositoryTest {
 
@@ -50,7 +48,7 @@ class UsuarioRepositoryTest {
     void findByNaoDeveriaTerRetornoComEmailNaoCadastrado() {
         var usuarioEncontrado = usuarioRepository.findByEmail("any@mail.com");
 
-        assertNull(usuarioEncontrado);
+        assertEquals(Optional.empty(), usuarioEncontrado);
     }
 
 }

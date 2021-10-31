@@ -12,8 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +21,6 @@ import java.math.BigDecimal;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 @ActiveProfiles("test")
 class TransacaoRepositoryTest {
 
@@ -64,10 +61,10 @@ class TransacaoRepositoryTest {
         Assertions.assertThat(relatorio).hasSize(4)
                 .extracting(ItemCarteiraProjection::getTicker, ItemCarteiraProjection::getQuantidade,
                         ItemCarteiraProjection::getPercentual)
-                .containsExactlyInAnyOrder(Assertions.tuple("ITSA4", 90L, BigDecimal.valueOf(28.571429)),
-                        Assertions.tuple("BBSE3", 80L, BigDecimal.valueOf(25.396825)),
-                        Assertions.tuple("EGIE3", 25L, BigDecimal.valueOf(7.936508)),
-                        Assertions.tuple("SAPR4", 120L, BigDecimal.valueOf(38.095238)));
+                .containsExactlyInAnyOrder(Assertions.tuple("ITSA4", 90L, BigDecimal.valueOf(28.571428571428573)),
+                        Assertions.tuple("BBSE3", 80L, BigDecimal.valueOf(25.396825396825395)),
+                        Assertions.tuple("EGIE3", 25L, BigDecimal.valueOf(7.936507936507937)),
+                        Assertions.tuple("SAPR4", 120L, BigDecimal.valueOf(38.095238095238095)));
     }
 
     @Test

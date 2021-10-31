@@ -55,15 +55,19 @@ public class UsuarioService implements UserDetailsService {
 
     @Transactional
     public UsuarioResponseDto criar(UsuarioFormDto usuarioFormDto) {
-        verificarEmailEmUso(usuarioFormDto.getEmail());
+        try {
+            verificarEmailEmUso(usuarioFormDto.getEmail());
 
-        var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
-        usuario.getPerfis().add(perfilRepository.getById(usuarioFormDto.getPerfilId()));
-        var senha = gerarSenhaCodificada();
-        usuario.setSenha(senha);
-        usuarioRepository.save(usuario);
+            var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
+            usuario.getPerfis().add(perfilRepository.getById(usuarioFormDto.getPerfilId()));
+            var senha = gerarSenhaCodificada();
+            usuario.setSenha(senha);
+            usuarioRepository.save(usuario);
 
-        return modelMapper.map(usuario, UsuarioResponseDto.class);
+            return modelMapper.map(usuario, UsuarioResponseDto.class);
+        } catch (DataIntegrityViolationException e) {
+            throw new DomainException("Perfil inválido");
+        }
     }
 
     @Transactional
