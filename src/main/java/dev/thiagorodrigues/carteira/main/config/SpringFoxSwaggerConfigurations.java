@@ -1,5 +1,6 @@
 package dev.thiagorodrigues.carteira.main.config;
 
+import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -20,9 +21,10 @@ public class SpringFoxSwaggerConfigurations {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
                 .apis(RequestHandlerSelectors.basePackage("dev.thiagorodrigues.carteira.application.controllers"))
-                .paths(PathSelectors.any()).build().globalRequestParameters(Arrays.asList(new RequestParameterBuilder()
-                        .name("Authorization").description("Bearer Token").required(false).in("header").build()))
-                .apiInfo(apiInfo());
+                .paths(PathSelectors.any()).build()
+                .globalRequestParameters(Arrays.asList(new RequestParameterBuilder().name("Authorization")
+                        .description("Bearer Token").required(false).in("header").build()))
+                .ignoredParameterTypes(Usuario.class).apiInfo(apiInfo());
     }
 
     private ApiInfo apiInfo() {
