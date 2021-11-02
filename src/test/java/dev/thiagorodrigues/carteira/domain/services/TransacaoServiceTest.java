@@ -41,6 +41,9 @@ class TransacaoServiceTest {
     private TransacaoRepository transacaoRepository;
 
     @Mock
+    private CalculadorDeImpostoService calculadorDeImpostoService;
+
+    @Mock
     private UsuarioRepository usuarioRepository;
 
     @Mock

@@ -13,6 +13,7 @@ public class TransacaoDetalhadaResponseDto extends TransacaoResponseDto {
 
     @JsonFormat(shape = Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate data;
+
     private UsuarioResponseDto usuario;
 
 }

@@ -26,6 +26,7 @@ import javax.persistence.EntityNotFoundException;
 public class TransacaoService {
 
     private final TransacaoRepository transacaoRepository;
+    private final CalculadorDeImpostoService calculadorDeImpostoService;
     private final ModelMapper modelMapper;
     private final UsuarioRepository usuarioRepository;
 
@@ -59,6 +60,7 @@ public class TransacaoService {
 
             var transacao = modelMapper.map(transacaoFormDto, Transacao.class);
             transacao.setUsuario(usuario);
+            transacao.setImposto(calculadorDeImpostoService.calcular(transacao));
             transacaoRepository.save(transacao);
 
             return modelMapper.map(transacao, TransacaoResponseDto.class);

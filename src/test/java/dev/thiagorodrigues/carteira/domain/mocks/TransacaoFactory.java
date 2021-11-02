@@ -17,17 +17,18 @@ public class TransacaoFactory {
     private static ModelMapper modelMapper = new ModelMapper();
 
     public static Transacao criarTransacao() {
-        return new Transacao(1L, "ITSA4", BigDecimal.valueOf(10.00), 10, LocalDate.now(), TipoTransacao.COMPRA,
-                UsuarioFactory.criarUsuario());
+        return new Transacao(1L, "ITSA4", BigDecimal.valueOf(10.00), 10, LocalDate.now(), BigDecimal.ZERO,
+                TipoTransacao.COMPRA, UsuarioFactory.criarUsuario());
     }
 
     public static Transacao criarTransacao(BigDecimal preco, Integer quantidade, TipoTransacao tipo) {
-        return new Transacao(1L, "ITSA4", preco, quantidade, LocalDate.now(), tipo, UsuarioFactory.criarUsuario());
+        return new Transacao(1L, "ITSA4", preco, quantidade, LocalDate.now(), BigDecimal.ZERO, tipo,
+                UsuarioFactory.criarUsuario());
     }
 
     public static Transacao criarTransacao(String ticker, BigDecimal preco, Integer quantidade, TipoTransacao tipo,
             Usuario usuario) {
-        return new Transacao(null, ticker, preco, quantidade, LocalDate.now(), tipo, usuario);
+        return new Transacao(null, ticker, preco, quantidade, LocalDate.now(), BigDecimal.ZERO, tipo, usuario);
     }
 
     public static TransacaoFormDto criarTransacaoFormDto() {
