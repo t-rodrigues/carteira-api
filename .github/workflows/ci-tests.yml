@@ -1,0 +1,27 @@
+name: Executar Testes Automatizados
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configurar JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Configurar Maven
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
+          restore-keys: ${{runner.os}}-m2
+
+      - name: Executar os Testes
+        run: mvn clean test --file pom.xml
