@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URL:jdbc:mysql://carteira_db:3306/carteira}
+    username: ${DATABASE_USER:carteira}
+    password: ${DATABASE_PASSWORD:docker}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
@@ -11,4 +11,4 @@ spring:
         '[format_sql]': true
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:mySuperSecret}
