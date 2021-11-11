@@ -1,14 +1,4 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/carteira
-    username: root
-    password: docker
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        '[format_sql]': true
+  profiles:
+    active: ${APP_PROFILE:dev}
 
-jwt:
-  secret: 2U3+Y3eM`yhMny@&G+ffn&\{((@}L<&vXS\Wy4pNPE8+fF%AhBrwAK\$AnT-pxGnMF$.ZyX:bABqp<wA(."U={4Cetut+K?)dp]sUGe$]4Cy48RMDF7?t!J`R^[U6Dk)<;muRA`QSshv;B-J3@?JjG+gh69[M+K~aztLegf\2CzRW"u'='qt79SDetue<b}*Ez*&$V:)(b#@?`Jg97_"?R/LQd^+d%TzqW./Lt&bDrSYM.t;fx_.-Q&#+mwh76X4
