@@ -20,8 +20,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.m2
-          key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
-          restore-keys: ${{runner.os}}-m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Executar os Testes
         run: mvn clean test --file pom.xml
@@ -42,16 +42,25 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.m2
-          key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
-          restore-keys: ${{runner.os}}-m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Gerar build
         run: mvn clean package -DskipTests
 
-      - name: Deploy heroku
+      - name: Deploy
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: true
+
+      - name: Login to heroku registry
+        run: heroku container:login
+
+      - name: Build and push to heroku registry
+        run: heroku container:push web --app ${{ secrets.HEROKU_APP_NAME }}
+
+      - name: Releases the container
+        run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
