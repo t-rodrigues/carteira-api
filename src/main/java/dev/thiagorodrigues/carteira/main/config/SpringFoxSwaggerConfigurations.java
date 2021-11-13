@@ -31,7 +31,8 @@ public class SpringFoxSwaggerConfigurations {
         return new ApiInfoBuilder().title("API Carteira de Investimentos").description("Documentação")
                 .license("Apache License Version 2.0").licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
                 .termsOfServiceUrl("https://google.com.br").version("1.0.0")
-                .contact(new Contact("John Doe", "google.com.br", "john@mail.com")).build();
+                .contact(new Contact("Thiago Rodrigues", "https://github.com/t-rodrigues", "thiagor_@live.com"))
+                .build();
     }
 
     private ApiKey apiKey() {
