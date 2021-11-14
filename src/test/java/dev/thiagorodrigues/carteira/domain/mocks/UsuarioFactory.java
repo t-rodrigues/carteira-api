@@ -11,16 +11,17 @@ public class UsuarioFactory {
     private static ModelMapper modelMapper = new ModelMapper();
 
     public static Usuario criarUsuario() {
-        return new Usuario(1L, "John Doe", "john@mail.com", "123123");
+        return new Usuario(1L, "John Doe", "john@mail.com",
+                "$2a$10$brrL19zsLrvKYbOOtTmp3.88Mh3ruGkHLt1XeqJTXUMrsDi6HFpSa");
     }
 
     public static Usuario criarUsuarioSemId() {
-        return new Usuario(null, "John Doe", "john@mail.com", "123123");
+        return new Usuario(null, "John Doe", "john@mail.com",
+                "$2a$10$brrL19zsLrvKYbOOtTmp3.88Mh3ruGkHLt1XeqJTXUMrsDi6HFpSa");
     }
 
     public static UsuarioFormDto criarUsuarioFormDto() {
         var usuarioFormDto = modelMapper.map(criarUsuario(), UsuarioFormDto.class);
-        usuarioFormDto.setPerfilId(1L);
 
         return usuarioFormDto;
     }

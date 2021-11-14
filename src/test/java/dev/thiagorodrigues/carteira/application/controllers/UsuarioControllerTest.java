@@ -1,8 +1,7 @@
 package dev.thiagorodrigues.carteira.application.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
-import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
+import dev.thiagorodrigues.carteira.infra.mail.MailService;
 import dev.thiagorodrigues.carteira.infra.repositories.PerfilRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import dev.thiagorodrigues.carteira.main.security.JwtTokenUtil;
@@ -11,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,14 +37,15 @@ class UsuarioControllerTest {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private MailService mailService;
 
     private String token;
+    private Usuario usuario;
 
     @BeforeEach
     void setUp() {
-        var usuario = new Usuario(null, "John Doe", "admin@mail.com", "superSecretPass");
+        usuario = new Usuario(null, "John Doe", "admin@mail.com", "superSecretPass");
         var ademir = perfilRepository.getById(1L);
         usuario.adicionarPerfil(ademir);
         usuarioRepository.save(usuario);
@@ -56,22 +55,19 @@ class UsuarioControllerTest {
     }
 
     @Test
-    void naoDeveriaCadastrarUsuarioComDadosIncompletos() throws Exception {
-        String json = "{}";
+    void mostrarShouldReturnNotFoundWhenInvalidId() throws Exception {
+        var nonExistingId = 100L;
 
-        mvc.perform(post("/usuarios").contentType(MediaType.APPLICATION_JSON).content(json)
-                .header(HttpHeaders.AUTHORIZATION, token)).andExpect(status().isBadRequest());
+        mvc.perform(get("/usuarios/{id}", nonExistingId).header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void deveriaCadastrarUmUsuarioComDadosCompletos() throws Exception {
-        String json = objectMapper.writeValueAsString(UsuarioFactory.criarUsuarioFormDto());
-        var usuarioResponseDto = UsuarioFactory.criarUsuarioResponseDto();
+    void mostrarShouldReturnUserWhenValidId() throws Exception {
+        var existingId = usuario.getId();
 
-        mvc.perform(post("/usuarios").contentType(MediaType.APPLICATION_JSON).content(json)
-                .header(HttpHeaders.AUTHORIZATION, token)).andExpect(status().isCreated())
-                .andExpect(header().exists("Location")).andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.nome").value(usuarioResponseDto.getNome()));
+        mvc.perform(get("/usuarios/{id}", existingId).header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(usuario.getId()));
     }
 
 }

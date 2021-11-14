@@ -20,8 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 
-import java.net.URI;
-
 @Api(tags = "Transações")
 @RestController
 @RequestMapping("/transacoes")
@@ -33,8 +31,8 @@ public class TransacaoController {
     @ApiOperation("Listar transações")
     @GetMapping
     public Page<TransacaoResponseDto> listar(@PageableDefault(size = 10) Pageable paginacao,
-            @AuthenticationPrincipal Usuario loggedUser) {
-        return transacaoService.listar(paginacao, loggedUser);
+            @AuthenticationPrincipal Usuario logado) {
+        return transacaoService.listar(paginacao, logado);
     }
 
     @ApiOperation("Mostrar transação completa")
@@ -46,10 +44,10 @@ public class TransacaoController {
     @ApiOperation("Cadastrar nova transação")
     @PostMapping
     public ResponseEntity<TransacaoResponseDto> add(@RequestBody @Valid TransacaoFormDto transacaoFormDto,
-            UriComponentsBuilder uriComponentsBuilder, @AuthenticationPrincipal Usuario loggedUser) {
-        TransacaoResponseDto transacaoResponseDto = transacaoService.add(transacaoFormDto, loggedUser);
+            UriComponentsBuilder uriComponentsBuilder, @AuthenticationPrincipal Usuario logado) {
+        TransacaoResponseDto transacaoResponseDto = transacaoService.add(transacaoFormDto, logado);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+        var location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(transacaoResponseDto.getId()).toUri();
 
         return ResponseEntity.created(location).body(transacaoResponseDto);
@@ -58,16 +56,16 @@ public class TransacaoController {
     @ApiOperation("Atualizar")
     @PutMapping
     public ResponseEntity<TransacaoResponseDto> atualizar(@RequestBody TransacaoUpdateFormDto transacaoUpdateFormDto,
-            @AuthenticationPrincipal Usuario loggedUser) {
-        var transacao = transacaoService.atualizar(transacaoUpdateFormDto, loggedUser);
+            @AuthenticationPrincipal Usuario logado) {
+        var transacao = transacaoService.atualizar(transacaoUpdateFormDto, logado);
 
         return ResponseEntity.ok(transacao);
     }
 
     @ApiOperation("Deletar")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id, @AuthenticationPrincipal Usuario loggedUser) {
-        transacaoService.remover(id, loggedUser);
+    public ResponseEntity<Void> remover(@PathVariable Long id, @AuthenticationPrincipal Usuario logado) {
+        transacaoService.remover(id, logado);
 
         return ResponseEntity.noContent().build();
     }

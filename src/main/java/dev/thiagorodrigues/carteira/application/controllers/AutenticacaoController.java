@@ -24,7 +24,7 @@ public class AutenticacaoController {
 
     @ApiOperation("Autenticar usuario")
     @PostMapping
-    public ResponseEntity<TokenDto> auth(@Valid @RequestBody AuthFormDto authFormDto) {
+    public ResponseEntity<TokenDto> auth(@RequestBody @Valid AuthFormDto authFormDto) {
         var token = autenticaoService.autenticar(authFormDto);
 
         return ResponseEntity.ok(new TokenDto(token));

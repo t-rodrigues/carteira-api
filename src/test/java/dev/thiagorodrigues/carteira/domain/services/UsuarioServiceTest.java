@@ -7,6 +7,7 @@ import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundExcep
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
 import dev.thiagorodrigues.carteira.domain.mocks.UsuarioFactory;
+import dev.thiagorodrigues.carteira.infra.mail.MailService;
 import dev.thiagorodrigues.carteira.infra.repositories.PerfilRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,9 @@ class UsuarioServiceTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private MailService mailService;
+
     @InjectMocks
     private UsuarioService usuarioService;
 
@@ -74,21 +78,20 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void detalharDeveriaRetornarUsuarioDetalhado() {
-        long validId = 1L;
-        when(usuarioRepository.getById(anyLong())).thenReturn(UsuarioFactory.criarUsuario());
-        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioResponseDto);
-        var usuarioResponseDto = usuarioService.detalhar(validId);
+    void detalharDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
+        when(usuarioRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertEquals(validId, usuarioResponseDto.getId());
-        verify(usuarioRepository, times(1)).getById(validId);
+        assertThrows(ResourceNotFoundException.class, () -> usuarioService.detalhar(1L));
     }
 
     @Test
-    void detalharDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
-        doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
+    void detalharShouldReturnUserWhenValidId() {
+        when(usuarioRepository.findById(anyLong())).thenReturn(Optional.of(usuario));
+        when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioResponseDto);
 
-        assertThrows(ResourceNotFoundException.class, () -> usuarioService.detalhar(1L));
+        var usuarioResponseDto = usuarioService.detalhar(usuario.getId());
+
+        assertEquals(usuario.getId(), usuarioResponseDto.getId());
     }
 
     @Test
@@ -113,10 +116,10 @@ class UsuarioServiceTest {
 
     @Test
     void atualizarDeveriaLancarResourceNotFoundExceptionQuandoIdInvalido() {
-        doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(anyLong());
+        doThrow(EntityNotFoundException.class).when(usuarioRepository).getById(any());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto));
+                () -> usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto, usuario));
     }
 
     @Test
@@ -124,7 +127,8 @@ class UsuarioServiceTest {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
         when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuario));
 
-        assertThrows(DomainException.class, () -> usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto));
+        assertThrows(DomainException.class,
+                () -> usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto, usuario));
         verify(usuarioRepository, times(0)).save(any());
     }
 
@@ -133,7 +137,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
         when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioAtualizadoEmailDiferenteResponseDto);
 
-        var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto);
+        var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComEmailDiferenteDto, usuario);
 
         assertEquals(usuarioAtualizado.getEmail(), usuarioUpdateFormComEmailDiferenteDto.getEmail());
         verify(usuarioRepository, times(1)).save(any());
@@ -144,7 +148,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.getById(anyLong())).thenReturn(usuario);
         when(modelMapper.map(usuario, UsuarioResponseDto.class)).thenReturn(usuarioAtualizadoResponseDto);
 
-        var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComMesmoEmailDto);
+        var usuarioAtualizado = usuarioService.atualizar(usuarioUpdateFormComMesmoEmailDto, usuario);
 
         assertEquals(usuarioAtualizado.getNome(), usuarioUpdateFormComMesmoEmailDto.getNome());
         verify(usuarioRepository, times(1)).save(any());

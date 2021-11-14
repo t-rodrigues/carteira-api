@@ -1,11 +1,12 @@
 package dev.thiagorodrigues.carteira.domain.services;
 
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioFormDto;
+import dev.thiagorodrigues.carteira.application.dtos.UsuarioPutFormDto;
 import dev.thiagorodrigues.carteira.application.dtos.UsuarioResponseDto;
-import dev.thiagorodrigues.carteira.application.dtos.UsuarioUpdateFormDto;
 import dev.thiagorodrigues.carteira.application.exceptions.ResourceNotFoundException;
 import dev.thiagorodrigues.carteira.domain.entities.Usuario;
 import dev.thiagorodrigues.carteira.domain.exceptions.DomainException;
+import dev.thiagorodrigues.carteira.infra.mail.MailService;
 import dev.thiagorodrigues.carteira.infra.repositories.PerfilRepository;
 import dev.thiagorodrigues.carteira.infra.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityNotFoundException;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 public class UsuarioService implements UserDetailsService {
@@ -34,6 +33,7 @@ public class UsuarioService implements UserDetailsService {
     private final PerfilRepository perfilRepository;
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final MailService mailService;
 
     @Transactional(readOnly = true)
     public Page<UsuarioResponseDto> listar(Pageable paginacao) {
@@ -44,13 +44,9 @@ public class UsuarioService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public UsuarioResponseDto detalhar(Long id) {
-        try {
-            var usuario = usuarioRepository.getById(id);
+        var usuario = usuarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(""));
 
-            return modelMapper.map(usuario, UsuarioResponseDto.class);
-        } catch (EntityNotFoundException e) {
-            throw getResourceNotFoundException();
-        }
+        return modelMapper.map(usuario, UsuarioResponseDto.class);
     }
 
     @Transactional
@@ -59,10 +55,18 @@ public class UsuarioService implements UserDetailsService {
             verificarEmailEmUso(usuarioFormDto.getEmail());
 
             var usuario = modelMapper.map(usuarioFormDto, Usuario.class);
-            usuario.getPerfis().add(perfilRepository.getById(usuarioFormDto.getPerfilId()));
-            var senha = gerarSenhaCodificada();
-            usuario.setSenha(senha);
+            usuario.getPerfis().add(perfilRepository.getByNome("ROLE_USER"));
+            usuario.setSenha(bCryptPasswordEncoder.encode(usuarioFormDto.getSenha()));
             usuarioRepository.save(usuario);
+
+            var recipient = usuario.getEmail();
+            var subject = "Carteira - Bem vindo(a)";
+            var content = String.format("Olá, %s!\n\n" + "Cadastro realizado com sucesso!\n"
+                    + "Para acessar sua conta no Sistema Carteira:"
+                    + "\nLogin: %s\nSenha: informada no momento do cadastro.\n\n" + "Atenciosamente,\nCarteira.",
+                    usuario.getNome(), usuario.getEmail());
+
+            this.mailService.sendMail(recipient, subject, content);
 
             return modelMapper.map(usuario, UsuarioResponseDto.class);
         } catch (DataIntegrityViolationException e) {
@@ -71,21 +75,32 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Transactional
-    public UsuarioResponseDto atualizar(UsuarioUpdateFormDto usuarioUpdateFormDto) {
+    public UsuarioResponseDto atualizar(UsuarioFormDto usuarioFormDto, Usuario logado) {
         try {
-            var usuario = usuarioRepository.getById(usuarioUpdateFormDto.getId());
+            var usuario = usuarioRepository.getById(logado.getId());
 
-            if (!usuarioUpdateFormDto.getEmail().equalsIgnoreCase(usuario.getEmail())) {
-                verificarEmailEmUso(usuarioUpdateFormDto.getEmail());
+            if (!usuarioFormDto.getEmail().equalsIgnoreCase(usuario.getEmail())) {
+                verificarEmailEmUso(usuarioFormDto.getEmail());
             }
 
-            usuario.atualizarInformacoes(usuarioUpdateFormDto.getNome(), usuarioUpdateFormDto.getEmail());
+            usuario.atualizarInformacoes(usuarioFormDto.getNome(), usuarioFormDto.getEmail());
             usuarioRepository.save(usuario);
 
             return modelMapper.map(usuario, UsuarioResponseDto.class);
         } catch (EntityNotFoundException e) {
             throw getResourceNotFoundException();
         }
+    }
+
+    @Transactional
+    public void atualizarPerfis(Long id, UsuarioPutFormDto usuarioPutFormDto) {
+        var usuario = usuarioRepository.getById(id);
+        var perfis = perfilRepository.findAllById(usuarioPutFormDto.getPerfis());
+
+        usuario.getPerfis().clear();
+        perfis.forEach(usuario::adicionarPerfil);
+
+        usuarioRepository.save(usuario);
     }
 
     public void deletar(Long id) {
@@ -110,10 +125,6 @@ public class UsuarioService implements UserDetailsService {
         if (!ObjectUtils.isEmpty(usuario)) {
             throw new DomainException("E-mail já em uso por outro usuário");
         }
-    }
-
-    private String gerarSenhaCodificada() {
-        return bCryptPasswordEncoder.encode(new Random().nextInt(99999) + "");
     }
 
     private ResourceNotFoundException getResourceNotFoundException() {

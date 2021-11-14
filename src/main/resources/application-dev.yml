@@ -1,14 +1,32 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/carteira}
-    username: ${DATABASE_USER:carteira}
-    password: ${DATABASE_PASSWORD:docker}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
     properties:
       hibernate:
         '[format_sql]': true
+  mail:
+    host: ${MAIL_HOST}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          port: 587
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+from:
+  email:
+    address: ${EMAIL_FROM_ADDRESS}
 
 jwt:
-  secret: ${JWT_SECRET:mySuperSecret}
+  secret: ${JWT_SECRET}
