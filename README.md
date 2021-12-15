@@ -45,8 +45,7 @@ Acessar o endereço do projeto no navegador `http://localhost:8080/swagger-ui/`
 ## Features
 
 - Autenticação/Autorização com JWT
-- CRUD de Autores
-- CRUD de Livros
+- CRUD de Transaç
 - CRUD de Usuários
 - Envio de E-mail em Produção com Spring Mail
 
