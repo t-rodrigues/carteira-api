@@ -24,13 +24,13 @@ Projeto desenvolvido durante o Bootcamp de Java da Alura. Construção de uma AP
 Clonar o projeto
 
 ```bash
-  git clone https://github.com/t-rodrigues/carteira-api/
+  git clone https://github.com/t-rodrigues/carteira-api.git
 ```
 
 Acessar o diretorio do projeto
 
 ```bash
-  cd livraria-api
+  cd carteira-api
 ```
 
 Iniciar o projeto
@@ -45,7 +45,7 @@ Acessar o endereço do projeto no navegador `http://localhost:8080/swagger-ui/`
 ## Features
 
 - Autenticação/Autorização com JWT
-- CRUD de Transaç
+- CRUD de Transações
 - CRUD de Usuários
 - Envio de E-mail em Produção com Spring Mail
 
